@@ -1,0 +1,11 @@
+{
+  "name": "terminal-mod-pty-host",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Hosts a real PTY plus a headless xterm for the terminal-mod pane",
+  "dependencies": {
+    "@lydell/node-pty": "^1.2.0-beta.15",
+    "@xterm/headless": "^6.0.0"
+  }
+}

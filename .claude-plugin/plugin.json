@@ -1,0 +1,33 @@
+{
+  "name": "terminal-mod",
+  "version": "0.2.0",
+  "description": "/trm opens a real terminal (PTY) pane in the workspace folder: your shell, full-screen apps, colours",
+  "author": {
+    "name": "djmid"
+  },
+  "license": "MIT",
+  "keywords": [
+    "mod",
+    "terminal",
+    "shell",
+    "pane",
+    "pty"
+  ],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "shell": {
+      "type": "string",
+      "title": "Shell",
+      "description": "Shell to run (pwsh, powershell, cmd, bash, zsh, fish or a full path). Empty picks pwsh/powershell on Windows, your login shell on macOS",
+      "default": ""
+    },
+    "node": {
+      "type": "string",
+      "title": "Node.js",
+      "description": "Path to node (18+) for the PTY host. Empty finds it on PATH (on macOS through your login shell)",
+      "default": ""
+    }
+  },
+  "homepage": "https://github.com/netgfx/claude-terminal-mod",
+  "repository": "https://github.com/netgfx/claude-terminal-mod"
+}
