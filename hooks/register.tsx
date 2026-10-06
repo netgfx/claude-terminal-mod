@@ -71,10 +71,14 @@ async function findNode($: EngineInterface, shell: string): Promise<string> {
   if (configured.node) return configured.node
   if ((await $.env.get('OS')) === 'Windows_NT') return 'node'
   const login = /fish$/.test(shell) ? '/bin/sh' : shell
-  const found = await $.process
-    .run([login, '-l', '-c', 'command -v node'], { timeoutMs: 15000 })
-    .then(r => r.stdout.trim().split('\n').pop() ?? '', () => '')
-  return found || 'node'
+  const candidates = await $.process
+    .run([login, '-l', '-c', 'which -a node'], { timeoutMs: 15000 })
+    .then(r => r.stdout.split(/\r?\n/).map(path => path.trim()).filter(Boolean), () => [])
+  for (const node of candidates) {
+    const works = await $.process.run([node, '--version'], { timeoutMs: 5000 }).then(r => r.exitCode === 0, () => false)
+    if (works) return node
+  }
+  return 'node'
 }
 
 async function start($: EngineInterface) {

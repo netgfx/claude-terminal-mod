@@ -21,16 +21,29 @@ const frame = (text: string) =>
   JSON.stringify({ t: 'f', cols: 80, rows: 20, r: [[[text, 0]]], s: [{ f: '#0dbc79', B: 1 }], c: [text.length, 0], up: 0 }) + '\n'
 
 // A stand-in for pty-host/host.mjs: says ready, draws one frame, then exits when told
-function fakeHost(on: any, env: Record<string, string>) {
+function fakeHost(
+  on: any,
+  env: Record<string, string>,
+  { nodes = ['/opt/homebrew/bin/node'], brokenNodes = [] }: { nodes?: string[]; brokenNodes?: string[] } = {},
+) {
   const spawned: { argv: readonly string[]; cwd?: string }[] = []
   const posted: { path: string; body: any }[] = []
   let exit: () => void = () => {}
 
   mock.env(on, env)
   on('session.cwd', async () => ({ value: env.OS ? 'D:\\ws' : '/Users/me/ws' }))
-  on('process.run', async (_$: any, e: any) => ({
-    value: { exitCode: 0, stdout: e.argv.includes('command -v node') ? '/opt/homebrew/bin/node\n' : '', stderr: '', isStdoutTruncated: false, isStderrTruncated: false },
-  }))
+  on('process.run', async (_$: any, e: any) => {
+    const stdout = e.argv.includes('which -a node') ? nodes.join('\n') + '\n' : e.argv[1] === '--version' ? 'v22.0.0\n' : ''
+    return {
+      value: {
+        exitCode: e.argv[1] === '--version' && brokenNodes.includes(e.argv[0]) ? 1 : 0,
+        stdout,
+        stderr: '',
+        isStdoutTruncated: false,
+        isStderrTruncated: false,
+      },
+    }
+  })
   on('process.spawn', async function* (_$: any, e: any) {
     spawned.push({ argv: e.argv, cwd: e.cwd })
     const exited = new Promise<void>(resolve => (exit = resolve))
@@ -46,6 +59,22 @@ function fakeHost(on: any, env: Record<string, string>) {
   })
   return { spawned, posted, exit: () => exit() }
 }
+
+test('macOS: skips Node executables that fail to launch', async ($, on) => {
+  mock.clock(on)
+  const fallback = '/Users/me/.nvm/versions/node/v22/bin/node'
+  const fake = fakeHost(
+    on,
+    { SHELL: '/bin/zsh' },
+    { nodes: ['/opt/homebrew/bin/node', fallback], brokenNodes: ['/opt/homebrew/bin/node'] },
+  )
+
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.advance(50)
+
+  expect(fake.spawned[0]!.argv[0]).toBe(fallback)
+  await ui.unmount()
+})
 
 for (const os of ['windows', 'macos'] as const) {
   test(`${os}: a real shell starts at the pane's size, draws, takes keys in order, restarts on Enter`, async ($, on) => {
