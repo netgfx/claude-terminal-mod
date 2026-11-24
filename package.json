@@ -1,0 +1,11 @@
+{
+  "name": "powermods-terminal",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Runtime dependencies of the PTY host (pty-host/host.mjs). Claude Code installs them from package-lock.json when the plugin is installed",
+  "license": "MIT",
+  "dependencies": {
+    "@lydell/node-pty": "1.1.0",
+    "@xterm/headless": "6.0.0"
+  }
+}

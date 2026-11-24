@@ -10,11 +10,14 @@ import { spawnSync } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
 import { createServer } from 'node:http'
 import { createRequire } from 'node:module'
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const here = dirname(fileURLToPath(import.meta.url))
-const require = createRequire(import.meta.url)
+// The plugin's root: its package.json and package-lock.json pin the two
+// dependencies, and Claude Code installs them into <root>/node_modules when it
+// installs the plugin (no lifecycle scripts run; node-pty ships prebuilt binaries)
+const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const require = createRequire(join(root, 'package.json'))
 const say = msg => {
   try {
     process.stdout.write(JSON.stringify(msg) + '\n')
@@ -24,19 +27,23 @@ const say = msg => {
 }
 process.stdout.on('error', () => process.exit(0))
 
-// First run on a machine (or a new OS/arch): fetch the native PTY build
+// Loads the dependencies from the plugin's own node_modules only, never from a
+// folder above it. Nothing is downloaded or installed here.
 function load() {
   try {
-    return { pty: require('@lydell/node-pty'), xterm: require('@xterm/headless') }
-  } catch (error) {
-    say({ t: 'status', message: 'Installing terminal support (one-time npm install)…' })
-    const r = spawnSync('npm', ['install', '--no-audit', '--no-fund', '--omit=dev'], { cwd: here, shell: true, encoding: 'utf8' })
-    if (r.status !== 0) {
-      say({ t: 'error', message: `npm install failed in ${here}: ${(r.stderr || r.stdout || String(error)).trim().slice(-400)}` })
-      process.exit(1)
+    return {
+      pty: require(join(root, 'node_modules', '@lydell', 'node-pty')),
+      xterm: require(join(root, 'node_modules', '@xterm', 'headless')),
     }
-    for (const key of Object.keys(require.cache)) delete require.cache[key]
-    return { pty: require('@lydell/node-pty'), xterm: require('@xterm/headless') }
+  } catch (error) {
+    say({
+      t: 'error',
+      message:
+        `Terminal support isn't installed in ${root} (${String(error?.message ?? error).split('\n')[0]}). ` +
+        'Claude Code installs it when it installs the plugin from a marketplace. For a folder loaded with --plugin-dir, ' +
+        'run "npm ci --omit=dev --ignore-scripts" in that folder once, then press Restart.',
+    })
+    process.exit(1)
   }
 }
 
