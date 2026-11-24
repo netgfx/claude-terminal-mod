@@ -202,10 +202,12 @@ export const register: Register = (on, options) => {
     return { text: 'Terminal opened. Click it to type; Esc hands the keys back to Claude.' }
   })
 
+  // Fail open: if stopping the shell throws, the pane still closes (the host
+  // also exits on its own once the mod stops pinging it)
   on('ui.close', async ($, e, next) => {
     if (e.id === PANE) await stop($)
     return next(e)
-  })
+  }).catch(($, e, next) => next(e))
 
   // The Client posts its size and the keys typed into it
   on('ui.message', { requestId: PANE }, async ($, e) => {
