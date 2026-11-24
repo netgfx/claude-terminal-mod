@@ -132,7 +132,7 @@ async function start($: EngineInterface) {
     if (stream === child) {
       phase = 'error'
       const why = error instanceof Error ? error.message : String(error)
-      note = `Could not start the PTY host with "${node}": ${why}. Is Node.js 18+ installed? Set its path in /config → terminal-mod → Node.js.`
+      note = `Could not start the PTY host with "${node}": ${why}. Is Node.js 18+ installed? Set its path in the plugin's Node.js setting (node).`
     }
   } finally {
     if (stream === child) {

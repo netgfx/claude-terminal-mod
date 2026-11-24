@@ -2,20 +2,26 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "claude-terminal-mod",
   "description": "A real terminal (PTY) pane inside Claude Code",
-  "owner": {
-    "name": "Michael Dobekidis",
-    "url": "https://github.com/netgfx"
+  "owner": { "name": "Michael Dobekidis", "email": "djmid71@gmail.com", "url": "https://github.com/netgfx" },
+  "metadata": {
+    "description": "Terminal Pane (powermods-terminal): a real terminal (PTY) pane inside Claude Code",
+    "version": "0.3.0"
   },
   "plugins": [
     {
-      "name": "terminal-mod",
+      "name": "powermods-terminal",
       "source": "./",
       "description": "/trm opens a real terminal (PTY) pane in the workspace folder: your shell, full-screen apps, colours",
-      "version": "0.2.0",
-      "category": "productivity",
-      "keywords": ["mod", "terminal", "shell", "pane", "pty"],
+      "version": "0.3.0",
+      "author": { "name": "Michael Dobekidis", "email": "djmid71@gmail.com", "url": "https://github.com/netgfx" },
       "homepage": "https://github.com/netgfx/claude-terminal-mod",
-      "repository": "https://github.com/netgfx/claude-terminal-mod"
+      "repository": "https://github.com/netgfx/claude-terminal-mod",
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["mod", "terminal", "shell", "pane", "pty"]
     }
-  ]
+  ],
+  "renames": {
+    "terminal-mod": "powermods-terminal"
+  }
 }

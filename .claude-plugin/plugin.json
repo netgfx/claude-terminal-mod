@@ -1,10 +1,11 @@
 {
-  "name": "terminal-mod",
-  "version": "0.2.0",
+  "name": "powermods-terminal",
+  "displayName": "Terminal Pane",
+  "version": "0.3.0",
   "description": "/trm opens a real terminal (PTY) pane in the workspace folder: your shell, full-screen apps, colours",
-  "author": {
-    "name": "djmid"
-  },
+  "author": { "name": "Michael Dobekidis", "email": "djmid71@gmail.com", "url": "https://github.com/netgfx" },
+  "homepage": "https://github.com/netgfx/claude-terminal-mod",
+  "repository": "https://github.com/netgfx/claude-terminal-mod",
   "license": "MIT",
   "keywords": [
     "mod",
@@ -13,6 +14,7 @@
     "pane",
     "pty"
   ],
+  "network": { "hosts": ["127.0.0.1", "registry.npmjs.org"] },
   "types": "./types/index.d.ts",
   "userConfig": {
     "shell": {
@@ -27,7 +29,5 @@
       "description": "Path to node (18+) for the PTY host. Empty finds it on PATH (on macOS through your login shell)",
       "default": ""
     }
-  },
-  "homepage": "https://github.com/netgfx/claude-terminal-mod",
-  "repository": "https://github.com/netgfx/claude-terminal-mod"
+  }
 }

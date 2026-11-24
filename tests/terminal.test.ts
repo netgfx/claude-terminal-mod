@@ -3,7 +3,7 @@ import { expect, mock, test } from 'claude-code/testing'
 import { shellArgs, takeLines, unixShell } from '../hooks/lib'
 
 const PANE = {
-  plugin: 'terminal-mod',
+  plugin: 'powermods-terminal',
   component: 'Pane',
   requestId: 'terminal-mod',
   viewport: { columns: 160, rows: 50 },
