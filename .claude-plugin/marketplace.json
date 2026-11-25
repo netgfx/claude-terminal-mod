@@ -5,14 +5,14 @@
   "owner": { "name": "Michael Dobekidis", "email": "djmid71@gmail.com", "url": "https://github.com/netgfx" },
   "metadata": {
     "description": "Terminal Pane (powermods-terminal): a real terminal (PTY) pane inside Claude Code",
-    "version": "0.3.0"
+    "version": "0.3.1"
   },
   "plugins": [
     {
       "name": "powermods-terminal",
       "source": "./",
       "description": "/trm opens a real terminal (PTY) pane in the workspace folder: your shell, full-screen apps, colours",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": { "name": "Michael Dobekidis", "email": "djmid71@gmail.com", "url": "https://github.com/netgfx" },
       "homepage": "https://github.com/netgfx/claude-terminal-mod",
       "repository": "https://github.com/netgfx/claude-terminal-mod",

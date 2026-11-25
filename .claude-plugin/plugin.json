@@ -1,7 +1,7 @@
 {
   "name": "powermods-terminal",
   "displayName": "Terminal Pane",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "/trm opens a real terminal (PTY) pane in the workspace folder: your shell, full-screen apps, colours",
   "author": { "name": "Michael Dobekidis", "email": "djmid71@gmail.com", "url": "https://github.com/netgfx" },
   "homepage": "https://github.com/netgfx/claude-terminal-mod",
@@ -27,7 +27,7 @@
     "node": {
       "type": "string",
       "title": "Node.js",
-      "description": "Path to node (18+) for the PTY host. Empty finds it on PATH (on macOS through your login shell)",
+      "description": "Path to node (18+) for the PTY host. Empty: the mod looks for node where your terminal would find it (on macOS and Linux, by asking your login shell)",
       "default": ""
     }
   }

@@ -45,9 +45,33 @@ Run `/trm` to open the terminal pane. Click it to type; Esc hands the keys back 
 Set these in the plugin's settings (`userConfig`):
 
 - **Shell** (`shell`): `pwsh`, `powershell`, `cmd`, `bash`, `zsh`, `fish` or a full path. Empty picks pwsh/powershell on Windows, your login shell on macOS and Linux.
-- **Node.js** (`node`): path to `node`. Empty finds it on PATH (on macOS and Linux through your login shell).
+- **Node.js** (`node`): path to `node`. Empty: the mod looks for `node` where your terminal would find it (on macOS and Linux, by asking your login shell).
 
 ## Data, network and permissions
+
+### At a glance
+
+- **Programs it runs:** a terminal is the mod's purpose, so it starts your shell, through a small Node.js program of its own. Each is one named program with its arguments as a list:
+  - `node <plugin>/pty-host/host.mjs <settings as JSON>`: the PTY host, a separate Node.js program in this plugin that runs your shell in a pseudo-terminal. It is not part of the hooks module, and as a Node program it uses Node's own `process` object (its arguments, environment, standard output and exit), which the hooks module never touches.
+  - Your shell inside that terminal: the `shell` setting, else `pwsh` or `powershell` (Windows) or your login shell with `-l` (macOS, Linux). What you type there is yours to run.
+  - To find those when they aren't set: `pwsh -NoLogo -NoProfile -Command "exit 0"` (Windows, to see whether PowerShell 7 is installed); `<login shell> -l -c "which -a node"` and `<node> --version` (macOS, Linux, to find a working Node.js the way your terminal would); `where.exe <shell>` inside the host (Windows, to find the shell's `.exe`).
+  - It runs no downloader, and never runs text from the network, a model or the conversation as a command.
+- **What it sends and where:** keys you type and the pane's size go from the mod to its own PTY host on `127.0.0.1`; the screen comes back over the host's standard output. Nothing goes to Claude, a model or any other host. The settings JSON it passes to the host holds only the shell, its arguments, the working folder and the pane's size.
+- **Hosts it contacts:** `127.0.0.1` only, on the random port the PTY host picks at each start (`http://127.0.0.1:<port>/in`, `/resize`, `/ping`, `/kill`, each with the host's random token). The address can't be fixed text because the port is chosen at start. `registry.npmjs.org` is reached by Claude Code, not by the mod, when it installs the plugin's dependencies (below).
+- **Dependencies it installs:** none itself. `package.json` and `package-lock.json` at the plugin root pin `@lydell/node-pty` 1.1.0 and `@xterm/headless` 6.0.0, and Claude Code installs them from that lockfile when it installs or updates the plugin, with no install scripts run. See [Dependencies and hosts](#dependencies-and-hosts).
+- **Tools it calls itself:** none.
+- **Slash commands it runs:** none. It adds `/trm`, and its `command.run` hook answers only `/trm`.
+- **Permission decisions:** none. It has no permission hook. The shell you open runs outside Claude Code's permission rules, as any terminal does (below).
+- **Files it writes:** none. It writes no build, start-up, settings or instructions file.
+- **Environment variables / config it sets:** none in Claude Code. It reads the `OS` and `SHELL` variables. The shell it starts gets Claude Code's environment with the terminal variables listed below.
+- **What it puts in prompts:** it submits no prompts. `/trm` prints one line, "Terminal opened. Click it to type; Esc hands the keys back to Claude.", which Claude can read.
+- **What it gives the agents it starts:** it starts no agents.
+- **Hooks:** it hooks no network, MCP or program call (`http.fetch`, `mcp.*`, `process.run`, `process.spawn`); it only makes its own.
+  - `session.start`: registers `/trm`. Changes nothing.
+  - `command.run` for `/trm` only: opens the pane.
+  - `ui.message` for its own pane only: the keys and size the terminal view sends; starts the host on first use.
+  - `ui.render` for its own pane only: draws the terminal.
+  - `ui.close`: ends the shell when its pane closes. Passes the event on.
 
 ### How it works
 
@@ -80,8 +104,8 @@ Claude Code ── the mod (hooks/register.tsx)
 
 ### Programs it starts
 
-- The PTY host: `node <plugin>/pty-host/host.mjs <spec>`, where `node` is your `node` setting or the first `node` on PATH.
-- Your shell, inside the PTY: the `shell` setting, or `pwsh`/`powershell` on Windows (the host resolves it with `where.exe`), or your login shell (`$SHELL`, else `/bin/sh`) with `-l` on macOS and Linux.
+- The PTY host: `node <plugin>/pty-host/host.mjs <spec>`, where `node` is your `node` setting or the first `node` your terminal would find.
+- Your shell, inside the PTY: the `shell` setting, or `pwsh`/`powershell` on Windows (the host resolves it with `where.exe`), or your login shell (the one your account is set to use, else `/bin/sh`) with `-l` on macOS and Linux.
 - To pick those when they aren't set: on Windows, `pwsh -NoLogo -NoProfile -Command "exit 0"` to see whether PowerShell 7 is there; on macOS and Linux, `<login shell> -l -c "which -a node"` and `<node> --version` for each result.
 
 ### What it reads and stores
