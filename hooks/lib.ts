@@ -1,3 +1,5 @@
+import type { Frame } from '../types'
+
 export const isPwsh = (shell: string) => /(^|[\/])(pwsh|powershell)(\.exe)?$/i.test(shell)
 
 /** Arguments for an interactive shell: a login shell on macOS/Linux so PATH matches Terminal.app. */
@@ -13,7 +15,7 @@ export const unixShell = (login: string | undefined) => (login && login.trim() ?
 
 export type HostMessage =
   | { t: 'ready'; port: number; token: string; pid?: number }
-  | ({ t: 'f' } & import('../types').Frame)
+  | ({ t: 'f' } & Frame)
   | { t: 'exit'; code: number }
   | { t: 'error'; message: string }
   | { t: 'status'; message: string }

@@ -235,16 +235,16 @@ export const register: Register = (on, options) => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const elements = $.ui.resolve(e)
     const { Box, Text, Button } = elements
+    // The VS Code extension has no Client element: say where the terminal draws
     if (!('Client' in elements)) {
       return <Text dimColor>The terminal draws in the Claude Code terminal and desktop app.</Text>
     }
-    const { Client } = elements
     const cols = Math.max(20, e.props.bodyColumns)
     const rows = Math.max(3, e.props.scroll.bodyRows - (phase === 'error' ? 1 : 0))
 
     return (
       <Box flexDirection="column">
-        <Client key="term" module="./term-view.tsx" props={viewProps()} width={cols} height={rows} />
+        {h('Client', { key: 'term', module: './term-view.tsx', props: viewProps(), width: cols, height: rows })}
         {phase === 'error' && (
           <Box flexDirection="row" gap={1}>
             <Button key="restart" label="Restart" variant="primary" onPress={() => void restart($)} />
